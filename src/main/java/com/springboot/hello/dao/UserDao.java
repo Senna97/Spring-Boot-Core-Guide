@@ -3,16 +3,20 @@ package com.springboot.hello.dao;
 import com.springboot.hello.domain.User;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.*;
 
+@Component
 public class UserDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private final DataSource dataSource;
+    private final JdbcTemplate jdbcTemplate;
 
-    public UserDao(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    public UserDao(DataSource dataSource, JdbcTemplate jdbcTemplate) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     RowMapper<User> rowMapper = new RowMapper<User>() {
@@ -33,8 +37,8 @@ public class UserDao {
         return this.jdbcTemplate.queryForObject(sql, rowMapper, id);
     }
 
-    public void deleteAll() {
-        this.jdbcTemplate.update("DELETE FROM `likelion-db`.users");
+    public int deleteAll() {
+        return this.jdbcTemplate.update("DELETE FROM `likelion-db`.users");
     }
 
 }
