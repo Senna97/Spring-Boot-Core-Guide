@@ -1,28 +1,33 @@
 package com.springboot.hello.controller;
 
 import com.springboot.hello.domain.dto.MemberDto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/get-api")
+@Slf4j
 public class GetController {
 
     // http://localhost:8080/api/v1/get-api/hello
     @RequestMapping(value = "/hello", method = RequestMethod.GET)
     public String getHello() {
+        log.info("getHello 요청이 들어왔습니다.");
         return "Hello World";
     }
 
     // http://localhost:8080/api/v1/get-api/name
     @GetMapping(value = "/name")
     public String getName() {
+        log.info("getName 요청이 들어왔습니다.");
         return "Flature";
     }
 
     @GetMapping(value = "/variable1/{variable}")
     public String getVariable1(@PathVariable String variable) {
+        log.info("getVariable1 요청이 들어왔습니다.");
         return variable;
     }
 
