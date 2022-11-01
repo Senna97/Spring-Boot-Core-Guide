@@ -20,6 +20,7 @@ public class HospitalDao {
                 "?, ?, ?, " +
                 "?, ?, ?, " +
                 "?, ?, ?, " +
+                "?, ?, ?, " +
                 "?);"; // 16개
         this.jdbcTemplate.update(sql, hospital.getId(), hospital.getOpenServiceName(), hospital.getOpenLocalGovernmentCode(),
                 hospital.getManagementNumber(), hospital.getLicenseDate(), hospital.getBusinessStatus(),
