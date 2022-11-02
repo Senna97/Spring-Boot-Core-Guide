@@ -2,6 +2,7 @@ package com.springboot.hello.parser;
 
 import com.springboot.hello.dao.HospitalDao;
 import com.springboot.hello.domain.Hospital;
+import com.springboot.hello.service.HospitalService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,29 +24,51 @@ class HospitalParserTest {
     @Autowired // HospitalDao는 Factory가 없는데 왜 DI가 될까?
     HospitalDao hospitalDao;
 
+    @Autowired
+    HospitalService hospitalService;
+
     @Test
     @DisplayName("Hospital INSERT 검증")
     void add() {
+        hospitalDao.deleteAll();
+        assertEquals(0, hospitalDao.getCount());
         HospitalParser hp = new HospitalParser();
         Hospital hospital = hp.parse(line1);
         hospitalDao.add(hospital);
+        assertEquals(1, hospitalDao.getCount());
+
+        Hospital selectedHospital = hospitalDao.findById(hospital.getId());
+        assertEquals(selectedHospital.getId(), hospital.getId());
+        assertEquals(selectedHospital.getOpenServiceName(), hospital.getOpenServiceName());
+        assertEquals(selectedHospital.getOpenLocalGovernmentCode(), hospital.getOpenLocalGovernmentCode());
+        assertEquals(selectedHospital.getManagementNumber(), hospital.getManagementNumber());
+        assertTrue(selectedHospital.getLicenseDate().isEqual(hospital.getLicenseDate()));
+        assertEquals(selectedHospital.getBusinessStatus(), hospital.getBusinessStatus());
+        assertEquals(selectedHospital.getBusinessStatusCode(), hospital.getBusinessStatusCode());
+        assertEquals(selectedHospital.getPhone(), hospital.getPhone());
+        assertEquals(selectedHospital.getFullAddress(), hospital.getFullAddress());
+        assertEquals(selectedHospital.getRoadNameAddress(), hospital.getRoadNameAddress());
+        assertEquals(selectedHospital.getHospitalName(), hospital.getHospitalName());
+        assertEquals(selectedHospital.getBusinessTypeName(), hospital.getBusinessTypeName());
+        assertEquals(selectedHospital.getHealthcareProviderCount(), hospital.getHealthcareProviderCount());
+        assertEquals(selectedHospital.getPatientRoomCount(), hospital.getPatientRoomCount());
+        assertEquals(selectedHospital.getTotalNumberOfBeds(), hospital.getTotalNumberOfBeds());
+        assertEquals(selectedHospital.getTotalAreaSize(), hospital.getTotalAreaSize());
     }
 
     @Test
-    @DisplayName("10만건 이상의 데이터가 파싱 되는지")
+    @DisplayName("10만건 이상 데이터가 파싱 되는지")
     void oneHundredThousandRows() throws IOException {
-        // 서버 환경에서 build할 때 문제가 생길 수 있다.
-        // 테스트 코드는 어디에서든지 실행할 수 있게 짜는 것이 목표
-        String fileName = "/Users/jangseohyeon/Downloads/전국 병의원 정보.csv";
-        List<Hospital> hospitalList = hospitalReadLineContext.readByLine(fileName);
-        assertTrue(hospitalList.size() > 1000);
-        assertTrue(hospitalList.size() > 10000);
-        for (int i = 0; i < 10; i++) {
-            System.out.println(hospitalList.get(i).getHospitalName());
-        }
-
-        System.out.printf("파싱된 데이터 개수: %d", hospitalList.size());
+        // 서버환경에서 build 할 때 문제가 생길 수 있습니다.
+        // 어디에서든지 실행할 수 있게 짜는 것이 목표.
+        hospitalDao.deleteAll();
+        String filename = "/Users/jangseohyeon/Downloads/전국 병의원 정보.csv";
+        int count = this.hospitalService.insertLargeVolumeHospitalData(filename);
+        assertTrue(count > 1000);
+        assertTrue(count > 10000);
+        System.out.printf("파싱된 데이터 개수: %d \n", count);
     }
+
 
     @Test
     @DisplayName("csv 1줄이 Hospital 로 잘 만들어지는지 Test")
